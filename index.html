@@ -1,3 +1,6 @@
+
+raw
+Registro · HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,7 +28,6 @@
       gap: 24px;
     }
  
-    /* Subtle texture overlay */
     body::before {
       content: '';
       position: fixed;
@@ -70,7 +72,6 @@
       box-shadow: 0 24px 48px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
     }
  
-    /* Toggle tipo */
     .tipo-toggle {
       display: flex;
       background: rgba(0,0,0,0.15);
@@ -217,7 +218,7 @@
  
   <div class="header">
     <h1>Servicio Social</h1>
-    <p>Registro de asistencia</p>
+    <p>Registro de asistencia — Modo prueba</p>
   </div>
  
   <div class="card">
@@ -253,15 +254,12 @@
   </div>
  
   <div class="footer">
-    Debes estar en la ubicación del servicio para registrar.
+    Modo prueba — sin validación de ubicación
   </div>
  
   <script>
     const WEB_APP_URL =
-     "https://script.google.com/macros/s/AKfycbxqB4J5UrM-lTa0QpCBpcdTrlmOHaTqbeQH0pEIialQHVBzkjzu1F-anKF22WZd22M5MA/exec"
- 
-};
-const RADIO_METROS = 300; // ajusta según qué tan estricto quieras ser
+      "https://script.google.com/macros/s/AKfycbxqB4J5UrM-lTa0QpCBpcdTrlmOHaTqbeQH0pEIialQHVBzkjzu1F-anKF22WZd22M5MA/exec";
  
     let tipoActual = "ENTRADA";
     let animacionPuntos = null;
@@ -294,20 +292,7 @@ const RADIO_METROS = 300; // ajusta según qué tan estricto quieras ser
     }
  
     function ocultarMensaje() {
-      const div = document.getElementById("mensaje");
-      div.style.display = "none";
-    }
- 
-    function calcularDistancia(lat1, lng1, lat2, lng2) {
-      const R = 6371000;
-      const toRad = x => x * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLng = toRad(lng2 - lng1);
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLng / 2) ** 2;
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      document.getElementById("mensaje").style.display = "none";
     }
  
     function vibrarError() {
@@ -332,83 +317,53 @@ const RADIO_METROS = 300; // ajusta según qué tan estricto quieras ser
         return;
       }
  
-      // Bloquear botón y animar
       boton.disabled = true;
       const textoOriginal = boton.textContent;
       let puntos = 0;
-      boton.textContent = "Verificando ubicación...";
       animacionPuntos = setInterval(() => {
         puntos = (puntos + 1) % 4;
-        boton.textContent = "Verificando" + ".".repeat(puntos);
+        boton.textContent = "Registrando" + ".".repeat(puntos);
       }, 500);
  
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const distancia = calcularDistancia(lat, lng, UBICACION_PERMITIDA.lat, UBICACION_PERMITIDA.lng);
- 
-          if (distancia > RADIO_METROS) {
-            vibrarError();
-            clearInterval(animacionPuntos);
-            boton.textContent = textoOriginal;
-            boton.disabled = false;
-            mostrarMensaje("❌ Estás fuera de la zona permitida", "error");
-            return;
-          }
- 
-          clearInterval(animacionPuntos);
-          boton.textContent = "Registrando...";
- 
-          fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              nombre,
-              matricula,
-              tipo: tipoActual,
-              ubicacion: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
-            })
-          })
-          .then(res => res.text())
-          .then(respuesta => {
-            if (respuesta === "OK") {
-              const msg = tipoActual === "ENTRADA"
-                ? "✅ Entrada registrada correctamente"
-                : "✅ Salida registrada correctamente";
-              mostrarMensaje(msg, "ok");
-              document.getElementById("nombre").value = "";
-              document.getElementById("matricula").value = "";
-            } else if (respuesta === "YA_ENTRADA") {
-              mostrarMensaje("❌ Ya registraste entrada hoy", "error");
-            } else if (respuesta === "YA_SALIDA") {
-              mostrarMensaje("❌ Ya registraste salida hoy", "error");
-            } else if (respuesta === "SIN_ENTRADA") {
-              mostrarMensaje("❌ Primero debes registrar entrada", "error");
-            } else {
-              mostrarMensaje("❌ Error inesperado, intenta de nuevo", "error");
-            }
-          })
-          .catch(() => {
-            vibrarError();
-            mostrarMensaje("❌ Error de conexión", "error");
-          })
-          .finally(() => {
-            boton.textContent = textoOriginal;
-            boton.disabled = false;
-          });
-        },
-        () => {
-          vibrarError();
-          clearInterval(animacionPuntos);
-          boton.textContent = textoOriginal;
-          boton.disabled = false;
-          mostrarMensaje("❌ Debes permitir el acceso a tu ubicación", "error");
-        },
-        { timeout: 10000 }
-      );
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          nombre,
+          matricula,
+          tipo: tipoActual,
+          ubicacion: "Prueba — sin geolocalización"
+        })
+      })
+      .then(res => res.text())
+      .then(respuesta => {
+        if (respuesta === "OK") {
+          const msg = tipoActual === "ENTRADA"
+            ? "✅ Entrada registrada correctamente"
+            : "✅ Salida registrada correctamente";
+          mostrarMensaje(msg, "ok");
+          document.getElementById("nombre").value = "";
+          document.getElementById("matricula").value = "";
+        } else if (respuesta === "YA_ENTRADA") {
+          mostrarMensaje("❌ Ya registraste entrada hoy", "error");
+        } else if (respuesta === "YA_SALIDA") {
+          mostrarMensaje("❌ Ya registraste salida hoy", "error");
+        } else if (respuesta === "SIN_ENTRADA") {
+          mostrarMensaje("❌ Primero debes registrar entrada", "error");
+        } else {
+          mostrarMensaje("❌ Error inesperado: " + respuesta, "error");
+        }
+      })
+      .catch(() => {
+        vibrarError();
+        mostrarMensaje("❌ Error de conexión", "error");
+      })
+      .finally(() => {
+        clearInterval(animacionPuntos);
+        boton.textContent = textoOriginal;
+        boton.disabled = false;
+      });
     }
   </script>
  
 </body>
 </html>
- 
