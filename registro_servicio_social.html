@@ -1,0 +1,418 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro Servicio Social</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+ 
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+ 
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100dvh;
+      background: linear-gradient(145deg, #ff6b00 0%, #ff8c00 40%, #ff5500 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      gap: 24px;
+    }
+ 
+    /* Subtle texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 20%, rgba(255,200,80,0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 20% 80%, rgba(200,40,0,0.2) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+ 
+    .header {
+      text-align: center;
+      z-index: 1;
+    }
+ 
+    .header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      line-height: 1.2;
+    }
+ 
+    .header p {
+      margin-top: 6px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+    }
+ 
+    .card {
+      width: 100%;
+      max-width: 400px;
+      z-index: 1;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.07));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+ 
+    /* Toggle tipo */
+    .tipo-toggle {
+      display: flex;
+      background: rgba(0,0,0,0.15);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+ 
+    .tipo-toggle button {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 9px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.2px;
+    }
+ 
+    .tipo-toggle button.active-entrada {
+      background: #16a34a;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(22,163,74,0.4);
+    }
+ 
+    .tipo-toggle button.active-salida {
+      background: #dc2626;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(220,38,38,0.4);
+    }
+ 
+    label {
+      display: block;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+ 
+    .field {
+      margin-bottom: 16px;
+    }
+ 
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      font-size: 16px;
+      font-family: inherit;
+      background: rgba(255,255,255,0.92);
+      color: #1a1a1a;
+      font-weight: 500;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+ 
+    input::placeholder {
+      color: #aaa;
+      font-weight: 400;
+    }
+ 
+    input:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.7);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+    }
+ 
+    .btn-submit {
+      width: 100%;
+      margin-top: 8px;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s;
+      letter-spacing: 0.3px;
+    }
+ 
+    .btn-submit.modo-entrada {
+      background: #16a34a;
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(22,163,74,0.45);
+    }
+ 
+    .btn-submit.modo-salida {
+      background: #dc2626;
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(220,38,38,0.45);
+    }
+ 
+    .btn-submit:active {
+      transform: scale(0.97);
+    }
+ 
+    .btn-submit:disabled {
+      background: rgba(255,255,255,0.25) !important;
+      color: rgba(255,255,255,0.5);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+ 
+    #mensaje {
+      margin-top: 16px;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+      line-height: 1.4;
+    }
+ 
+    #mensaje.ok {
+      background: rgba(209,250,229,0.95);
+      color: #065f46;
+    }
+ 
+    #mensaje.error {
+      background: rgba(254,226,226,0.95);
+      color: #991b1b;
+    }
+ 
+    .footer {
+      z-index: 1;
+      text-align: center;
+      color: rgba(255,255,255,0.55);
+      font-size: 12px;
+      font-weight: 500;
+      padding-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+ 
+  <div class="header">
+    <h1>Servicio Social</h1>
+    <p>Registro de asistencia</p>
+  </div>
+ 
+  <div class="card">
+ 
+    <div class="tipo-toggle">
+      <button id="btnEntrada" class="active-entrada" onclick="seleccionarTipo('ENTRADA')">✅ Entrada</button>
+      <button id="btnSalida" onclick="seleccionarTipo('SALIDA')">🚪 Salida</button>
+    </div>
+ 
+    <div class="field">
+      <label for="nombre">Nombre completo</label>
+      <input id="nombre" type="text" placeholder="Ej. Juan Pérez" autocomplete="name">
+    </div>
+ 
+    <div class="field">
+      <label for="matricula">Matrícula</label>
+      <input
+        id="matricula"
+        type="text"
+        placeholder="Ej. A01234567"
+        maxlength="9"
+        autocomplete="off"
+        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+      >
+    </div>
+ 
+    <button id="btnSubmit" class="btn-submit modo-entrada" onclick="enviar(event)">
+      Registrar Entrada
+    </button>
+ 
+    <div id="mensaje"></div>
+ 
+  </div>
+ 
+  <div class="footer">
+    Debes estar en la ubicación del servicio para registrar.
+  </div>
+ 
+  <script>
+    const WEB_APP_URL =
+      "https://script.google.com/macros/s/AKfycbxItJv3GqITuJwK6oNmM9zGuEMnY_cKq_cRMZEnNzhSZXMyg4Y51bt4kc-HDKIprT5V/exec";
+ 
+    const UBICACION_PERMITIDA = {
+  lat: 25.6514,
+  lng: -100.2895
+};
+const RADIO_METROS = 300; // ajusta según qué tan estricto quieras ser
+ 
+    let tipoActual = "ENTRADA";
+    let animacionPuntos = null;
+ 
+    function seleccionarTipo(tipo) {
+      tipoActual = tipo;
+      const btnEntrada = document.getElementById("btnEntrada");
+      const btnSalida  = document.getElementById("btnSalida");
+      const btnSubmit  = document.getElementById("btnSubmit");
+ 
+      if (tipo === "ENTRADA") {
+        btnEntrada.className = "active-entrada";
+        btnSalida.className  = "";
+        btnSubmit.className  = "btn-submit modo-entrada";
+        btnSubmit.textContent = "Registrar Entrada";
+      } else {
+        btnSalida.className  = "active-salida";
+        btnEntrada.className = "";
+        btnSubmit.className  = "btn-submit modo-salida";
+        btnSubmit.textContent = "Registrar Salida";
+      }
+      ocultarMensaje();
+    }
+ 
+    function mostrarMensaje(texto, tipo) {
+      const div = document.getElementById("mensaje");
+      div.textContent = texto;
+      div.className = tipo === "ok" ? "ok" : "error";
+      div.style.display = "block";
+    }
+ 
+    function ocultarMensaje() {
+      const div = document.getElementById("mensaje");
+      div.style.display = "none";
+    }
+ 
+    function calcularDistancia(lat1, lng1, lat2, lng2) {
+      const R = 6371000;
+      const toRad = x => x * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+ 
+    function vibrarError() {
+      if ("vibrate" in navigator) navigator.vibrate([120, 60, 120]);
+    }
+ 
+    function enviar(event) {
+      const boton = event.target;
+      const nombre    = document.getElementById("nombre").value.trim();
+      const matricula = document.getElementById("matricula").value.trim();
+      const regexMatricula = /^[A-Z][0-9]{8}$/;
+ 
+      if (!nombre) {
+        vibrarError();
+        mostrarMensaje("❌ Escribe tu nombre completo", "error");
+        return;
+      }
+ 
+      if (!regexMatricula.test(matricula)) {
+        vibrarError();
+        mostrarMensaje("❌ Matrícula inválida — formato: A12345678", "error");
+        return;
+      }
+ 
+      // Bloquear botón y animar
+      boton.disabled = true;
+      const textoOriginal = boton.textContent;
+      let puntos = 0;
+      boton.textContent = "Verificando ubicación...";
+      animacionPuntos = setInterval(() => {
+        puntos = (puntos + 1) % 4;
+        boton.textContent = "Verificando" + ".".repeat(puntos);
+      }, 500);
+ 
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const distancia = calcularDistancia(lat, lng, UBICACION_PERMITIDA.lat, UBICACION_PERMITIDA.lng);
+ 
+          if (distancia > RADIO_METROS) {
+            vibrarError();
+            clearInterval(animacionPuntos);
+            boton.textContent = textoOriginal;
+            boton.disabled = false;
+            mostrarMensaje("❌ Estás fuera de la zona permitida", "error");
+            return;
+          }
+ 
+          clearInterval(animacionPuntos);
+          boton.textContent = "Registrando...";
+ 
+          fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              nombre,
+              matricula,
+              tipo: tipoActual,
+              ubicacion: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
+            })
+          })
+          .then(res => res.text())
+          .then(respuesta => {
+            if (respuesta === "OK") {
+              const msg = tipoActual === "ENTRADA"
+                ? "✅ Entrada registrada correctamente"
+                : "✅ Salida registrada correctamente";
+              mostrarMensaje(msg, "ok");
+              document.getElementById("nombre").value = "";
+              document.getElementById("matricula").value = "";
+            } else if (respuesta === "YA_ENTRADA") {
+              mostrarMensaje("❌ Ya registraste entrada hoy", "error");
+            } else if (respuesta === "YA_SALIDA") {
+              mostrarMensaje("❌ Ya registraste salida hoy", "error");
+            } else if (respuesta === "SIN_ENTRADA") {
+              mostrarMensaje("❌ Primero debes registrar entrada", "error");
+            } else {
+              mostrarMensaje("❌ Error inesperado, intenta de nuevo", "error");
+            }
+          })
+          .catch(() => {
+            vibrarError();
+            mostrarMensaje("❌ Error de conexión", "error");
+          })
+          .finally(() => {
+            boton.textContent = textoOriginal;
+            boton.disabled = false;
+          });
+        },
+        () => {
+          vibrarError();
+          clearInterval(animacionPuntos);
+          boton.textContent = textoOriginal;
+          boton.disabled = false;
+          mostrarMensaje("❌ Debes permitir el acceso a tu ubicación", "error");
+        },
+        { timeout: 10000 }
+      );
+    }
+  </script>
+ 
+</body>
+</html>
+ 
